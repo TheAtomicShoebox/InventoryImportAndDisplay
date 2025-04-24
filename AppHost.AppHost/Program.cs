@@ -5,24 +5,24 @@ var sqlServer = builder
     .WithDbGate()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var databaseName = "inventoryDb";
+var databaseName = "Inventory";
 
 //lang=SQL
 var script = $"""
-             IF DB_ID('{databaseName}') IS NOT NULL
+             IF DB_ID('{databaseName}') IS NULL
                 CREATE DATABASE [{databaseName}]
              GO
                        
              USE [{databaseName}];
              GO
              
-             IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = (N'[dbo].[Item]') AND type IN (N'U'))
+             IF OBJECT_ID(N'dbo.Item', N'U') IS NULL
              BEGIN
                  CREATE TABLE [dbo].[Item] ( 
                    [ItemNo] BIGINT NOT NULL,
                    [ItemDescription] NVARCHAR(MAX) NOT NULL,
                    [Quantity] INT NOT NULL,
-                   [Price] INT NOT NULL,
+                   [Price] DECIMAL NOT NULL,
                    CONSTRAINT [PK_Item] PRIMARY KEY ([ItemNo])
                  )
              END

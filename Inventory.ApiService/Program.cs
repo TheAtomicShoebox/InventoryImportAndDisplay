@@ -1,3 +1,6 @@
+using Inventory.ApiService;
+using Inventory.ApiService.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
@@ -9,7 +12,13 @@ builder.Services.AddProblemDetails();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.AddSqlServerDbContext<InventoryContext>("Inventory");
+
 var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+await DataImporter.GrabbyGrabby(logger);
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
