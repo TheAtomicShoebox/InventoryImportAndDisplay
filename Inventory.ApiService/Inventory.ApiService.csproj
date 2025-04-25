@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AppHost.ServiceDefaults\AppHost.ServiceDefaults.csproj" />
+        <ProjectReference Include="..\Inventory.Common\Inventory.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>

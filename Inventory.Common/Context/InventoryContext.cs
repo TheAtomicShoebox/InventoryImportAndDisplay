@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Inventory.ApiService.Entities;
+﻿using Inventory.Common.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Inventory.ApiService.Context;
+namespace Inventory.Common.Context;
 
 public partial class InventoryContext : DbContext
 {

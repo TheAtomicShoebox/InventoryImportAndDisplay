@@ -34,6 +34,7 @@ var sqlDb = sqlServer
     .WithCreationScript(script);
 
 var importer = builder.AddProject<Projects.AppHost_ImportData>("importer")
+    //.WithArgs("--forceEmpty")
     .WithReference(sqlDb)
     .WaitFor(sqlDb);
 

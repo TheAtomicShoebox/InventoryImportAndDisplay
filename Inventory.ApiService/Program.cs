@@ -1,6 +1,7 @@
+using AppHost.ServiceDefaults;
 using Inventory.ApiService;
-using Inventory.ApiService.Context;
-using Inventory.ApiService.Entities;
+using Inventory.Common.Context;
+using Inventory.Common.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,14 +53,17 @@ app.MapGet("/weatherforecast", () =>
 app.MapDefaultEndpoints();
 
 app.RunAsync();
-
+/*
 using var scope = app.Services.CreateScope();
 var importer = scope.ServiceProvider.GetRequiredService<IDataImporter>();
-var response = importer.GrabbyGrabby(app.Logger);
+var response = importer.GrabbyGrabby(app.Logger);*/
 
 app.WaitForShutdown();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+namespace Inventory.ApiService
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    {
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
 }

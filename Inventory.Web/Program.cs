@@ -1,3 +1,4 @@
+using AppHost.ServiceDefaults;
 using Inventory.Web;
 using Inventory.Web.Components;
 
