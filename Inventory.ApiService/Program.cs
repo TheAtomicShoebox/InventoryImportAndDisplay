@@ -1,5 +1,6 @@
 using Inventory.ApiService;
 using Inventory.ApiService.Context;
+using Inventory.ApiService.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +15,15 @@ builder.Services.AddOpenApi();
 
 builder.AddSqlServerDbContext<InventoryContext>("Inventory");
 
+builder.Services.AddScoped<IDataImporter, DataImporter>();
+
 var app = builder.Build();
 
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
+//var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-await DataImporter.GrabbyGrabby(logger);
+// var context = app.Services.GetRequiredService<InventoryContext>();
+
+// await DataImporter.GrabbyGrabby(logger);
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
@@ -46,7 +51,13 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapDefaultEndpoints();
 
-app.Run();
+app.RunAsync();
+
+using var scope = app.Services.CreateScope();
+var importer = scope.ServiceProvider.GetRequiredService<IDataImporter>();
+var response = importer.GrabbyGrabby(app.Logger);
+
+app.WaitForShutdown();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

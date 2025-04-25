@@ -1,10 +1,16 @@
-﻿using Inventory.ApiService.Entities;
+﻿using Inventory.ApiService.Context;
+using Inventory.ApiService.Entities;
 
 namespace Inventory.ApiService;
 
-public static class DataImporter
+public interface IDataImporter
 {
-    public static async IAsyncEnumerable<Item> ImportData()
+    Task<List<Item>> GrabbyGrabby(ILogger logger, bool forceEmpty = false);
+}
+
+public class DataImporter(InventoryContext context) : IDataImporter
+{
+    public static async IAsyncEnumerable<Item> ImportDataFromFile()
     {
         await using var fileStream = File.Open("RandomInterviewItems.txt", new FileStreamOptions()
         {
@@ -102,24 +108,25 @@ public static class DataImporter
         return item;
     }
 
-    public static async Task GrabbyGrabby(ILogger logger)
+    public async Task<List<Item>> GrabbyGrabby(ILogger logger, bool forceEmpty =  false)
     {
-        var l = await ImportData().ToListAsync();
-        logger.LogInformation("{Count} items imported", l.Count);
-        /*await foreach (var item in ImportData())
+        if (forceEmpty)
         {
-            //logger.LogInformation(
-            //    """
-            //    ItemNo: {ItemNo}
-            //    ItemDescription: {ItemDescription}
-            //    Quantity: {Quantity}
-            //    Price: {Price}
-            //    """,
-            //    item.ItemNo,
-            //    item.ItemDescription,
-            //    item.Quantity,
-            //    item.Price
-            //);
-        }*/
+            context.Item.RemoveRange(context.Item);
+            await context.SaveChangesAsync();
+        }
+        List<Item> endResults = [];
+        await foreach (var item in ImportDataFromFile())
+        {
+            if (await context.Item.FindAsync(item.ItemNo) is not null)
+            {
+                continue;
+            }
+            context.Item.Add(item);
+            endResults.Add(item);
+        }
+        await context.SaveChangesAsync();
+        logger.LogInformation("Added {Count} items to the database", endResults.Count);
+        return endResults;
     }
 }
