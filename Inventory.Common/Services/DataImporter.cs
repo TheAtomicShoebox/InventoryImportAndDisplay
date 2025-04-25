@@ -121,17 +121,17 @@ public class DataImporter(InventoryContext context) : IDataImporter
     {
         if (forceEmpty)
         {
-            context.Item.RemoveRange(context.Item);
+            context.Items.RemoveRange(context.Items);
             await context.SaveChangesAsync();
         }
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var items = context.Item.AsQueryable();
+        var items = context.Items.AsQueryable();
         var resultImportedEnumerable = ImportDataFromFile().Where(itemResult => itemResult.Match(onSuccess: item => !items.Contains(item), onFailure: _ => false));
         await foreach (var itemResult in resultImportedEnumerable)
         {
             yield return await itemResult
-                .Bind(async ValueTask<Result<(Item original, Item? found)>>(item) => (item, await context.Item.FindAsync(item.ItemNo)))
+                .Bind(async ValueTask<Result<(Item original, Item? found)>>(item) => (item, await context.Items.FindAsync(item.ItemNo)))
                 .Bind(t => t.found is null
                           ? Failure<Item>(DataImporterErrors.ItemAlreadyExists)
                           : Success(t.original))

@@ -2,6 +2,7 @@ using AppHost.ServiceDefaults;
 using Inventory.ApiService;
 using Inventory.Common.Context;
 using Inventory.Common.Services;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,20 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.MapGet(
+    "/inventory",
+    (
+        [FromServices] InventoryContext context,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] int page = 1) =>
+    {
+        var pagesToSkip = page - 1;
+        return context.Items
+            .Skip(pagesToSkip * pageSize)
+            .Take(pageSize)
+            .ToList();
+    });
+
 string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
 
 app.MapGet("/weatherforecast", () =>
@@ -52,13 +67,7 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapDefaultEndpoints();
 
-app.RunAsync();
-/*
-using var scope = app.Services.CreateScope();
-var importer = scope.ServiceProvider.GetRequiredService<IDataImporter>();
-var response = importer.GrabbyGrabby(app.Logger);*/
-
-app.WaitForShutdown();
+app.Run();
 
 namespace Inventory.ApiService
 {
