@@ -47,9 +47,9 @@ var apiService = builder.AddProject<Projects.Inventory_ApiService>("apiservice")
     .WaitFor(sqlDb);
 
 builder.AddProject<Projects.Inventory_Web>("webfrontend")
-    .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health")
-    .WithReference(apiService)
-    .WaitFor(apiService);
+       .WithExternalHttpEndpoints()
+       .WithHttpHealthCheck("/health")
+       .WithReference(apiService)
+       .WaitFor(apiService);
 
 builder.Build().Run();
