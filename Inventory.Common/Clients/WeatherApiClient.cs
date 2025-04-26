@@ -1,4 +1,6 @@
-namespace Inventory.Web;
+using System.Net.Http.Json;
+
+namespace Inventory.Common.Clients;
 
 public class WeatherApiClient(HttpClient httpClient)
 {

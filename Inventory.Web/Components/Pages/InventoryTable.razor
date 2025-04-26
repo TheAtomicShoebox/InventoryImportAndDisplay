@@ -1,0 +1,78 @@
+﻿@page "/inventory"
+@using Inventory.Common.Clients
+@using Inventory.Common.Entities
+@using Inventory.Common.Enumerable
+@rendermode InteractiveServer
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+
+@inject InventoryApiClient InventoryApiClient
+
+<PageTitle>Inventory</PageTitle>
+
+<h1>Inventory</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (items is null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Item Number</th>
+            <th>Item Description</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <Virtualize ItemsProvider="GetItems" Context="item" OverscanCount="4">
+            <ItemContent>
+                <tr>
+                    <td>@item.ItemNo</td>
+                    <td>@item.ItemDescription</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price</td>
+                </tr>
+            </ItemContent>
+            <EmptyContent>
+                <tr>
+                    <td>ItemNo</td>
+                    <td>ItemDescription</td>
+                    <td>Quantity</td>
+                    <td>Price</td>
+                </tr>
+            </EmptyContent>
+        </Virtualize>
+        </tbody>
+    </table>
+}
+
+@code {
+    private CachedAsyncEnumerable<Item>? items;
+    private Virtualize<Item>? itemsComponent;
+
+    public async ValueTask<ItemsProviderResult<Item>> GetItems(ItemsProviderRequest request)
+    {
+        if (items is null || request.Count == 0)
+        {
+            return new([], 0);
+        }
+
+        var list = await items.GetNextAsync(request.Count);
+        var currentCount = request.StartIndex + list.Count + 1; // guess at least one more
+        return new ItemsProviderResult<Item>(list, currentCount);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        items = CachedAsyncEnumerable<Item>
+           .FromAsyncEnumerable(InventoryApiClient.GetInventoryAsync().Where(r => r.IsSuccess).Select(r => r.Value));
+    }
+}

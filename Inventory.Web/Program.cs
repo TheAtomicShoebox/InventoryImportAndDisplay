@@ -1,4 +1,5 @@
 using AppHost.ServiceDefaults;
+using Inventory.Common.Clients;
 using Inventory.Web;
 using Inventory.Web.Components;
 
@@ -8,8 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services
+       .AddRazorComponents()
+       .AddInteractiveServerComponents()
+       .AddCircuitOptions(opt => opt.DetailedErrors = true);
 
 builder.Services.AddOutputCache();
 
@@ -20,16 +23,20 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
     client.BaseAddress = new("https+http://apiservice");
 });
 
+builder.Services.AddHttpClient<InventoryApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://apiservice");
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
@@ -37,7 +44,8 @@ app.UseOutputCache();
 
 app.MapStaticAssets();
 
-app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>()
+   .AddInteractiveServerRenderMode();
 
 app.MapDefaultEndpoints();
 

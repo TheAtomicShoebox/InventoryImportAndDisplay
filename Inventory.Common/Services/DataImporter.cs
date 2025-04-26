@@ -132,7 +132,7 @@ public class DataImporter(InventoryContext context) : IDataImporter
         {
             yield return await itemResult
                 .Bind(async ValueTask<Result<(Item original, Item? found)>>(item) => (item, await context.Items.FindAsync(item.ItemNo)))
-                .Bind(t => t.found is null
+                .Bind(t => t.found is not null
                           ? Failure<Item>(DataImporterErrors.ItemAlreadyExists)
                           : Success(t.original))
                 .Tap(item => context.Add(item));

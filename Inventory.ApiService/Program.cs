@@ -1,8 +1,11 @@
 using AppHost.ServiceDefaults;
 using Inventory.ApiService;
 using Inventory.Common.Context;
+using Inventory.Common.Entities;
+using Inventory.Common.Results;
 using Inventory.Common.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,12 +24,6 @@ builder.Services.AddScoped<IDataImporter, DataImporter>();
 
 var app = builder.Build();
 
-//var logger = app.Services.GetRequiredService<ILogger<Program>>();
-
-// var context = app.Services.GetRequiredService<InventoryContext>();
-
-// await DataImporter.GrabbyGrabby(logger);
-
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
@@ -37,16 +34,27 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet(
     "/inventory",
+    async
     (
         [FromServices] InventoryContext context,
         [FromQuery] int pageSize = 10,
         [FromQuery] int page = 1) =>
     {
+        if (!context.Items.TryGetNonEnumeratedCount(out var count))
+        {
+            count = await context.Items.CountAsync();
+        }
+
         var pagesToSkip = page - 1;
-        return context.Items
+
+        var items = await context.Items
             .Skip(pagesToSkip * pageSize)
             .Take(pageSize)
-            .ToList();
+            .ToListAsync();
+
+        var next = !items.Any() || pagesToSkip * pageSize <= count ? $"/inventory?pageSize={pageSize}page={page + 1}" : null;
+
+        return new PagedResponse<Item> { Next = next, Total = count, Results = items };
     });
 
 string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];

@@ -1,7 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
+var password = builder.AddParameter("password", "Asdf1234!");
+
 var sqlServer = builder
-    .AddSqlServer("sqlServer")
+    .AddSqlServer("sqlServer", password)
     .WithDbGate()
     .WithLifetime(ContainerLifetime.Persistent);
 
@@ -16,9 +18,9 @@ var script = $"""
              USE [{databaseName}];
              GO
              
-             IF OBJECT_ID(N'dbo.Item', N'U') IS NULL
+             IF OBJECT_ID(N'dbo.Items', N'U') IS NULL
              BEGIN
-                 CREATE TABLE [dbo].[Item] ( 
+                 CREATE TABLE [dbo].[Items] ( 
                    [ItemNo] BIGINT NOT NULL,
                    [ItemDescription] NVARCHAR(MAX) NOT NULL,
                    [Quantity] INT NOT NULL,
