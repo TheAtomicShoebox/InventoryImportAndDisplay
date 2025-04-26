@@ -13,15 +13,15 @@ public class InventoryApiClient(HttpClient httpClient)
         int page = 1,
         int pageSize = 100)
     {
-        var initialRequest = HttpRequestBuilder.Create(HttpMethod.Get, new Uri($"/inventory?pageSize={pageSize}&page={page}", UriKind.Relative));
+        var initialRequestFactory = () => HttpRequestBuilder.Create(HttpMethod.Get, new Uri($"/inventory?pageSize={pageSize}&page={page}", UriKind.Relative));
         return new PagedHttpRequestEnumerable<PagedResponse<Item>, Item>(
-            () => Task.FromResult(Success(initialRequest)),
+            () => initialRequestFactory().ToTaskResult(),
             response => response.Results ?? [],
             response => !string.IsNullOrEmpty(response.Next),
             response =>
             {
                 page++;
-                return initialRequest.WithUri(new Uri(response.Next!, UriKind.Relative));
+                return initialRequestFactory().WithUri(new Uri(response.Next!, UriKind.Relative));
             },
             async (message, token) =>
             {

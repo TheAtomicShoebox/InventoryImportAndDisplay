@@ -10,7 +10,7 @@ public class HttpRequestMessageConfigurator : HttpRequestMessage
 
     private OAuthFormFields FormFields => _formFields ??= new OAuthFormFields();
 
-    public string BearerToken { get; private set; }
+    public string BearerToken { get; private set; } = string.Empty;
 
     public HttpRequestMessageConfigurator(HttpMethod method, string requestUri) : base(method, requestUri) { }
 

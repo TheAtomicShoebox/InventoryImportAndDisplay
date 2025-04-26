@@ -123,6 +123,5 @@ public class OAuthFormFields : IEnumerable<KeyValuePair<string, OAuthFieldValueC
     public IEnumerable<KeyValuePair<string, string>> AsFields()
     {
         return _fields.Select(kvp => new KeyValuePair<string, string>(kvp.Key, kvp.Value.ToString()));
-        //return _fields.SelectMany(kvp => kvp.Value.Select(value => new KeyValuePair<string, string>(kvp.Key, value)));
     }
 }

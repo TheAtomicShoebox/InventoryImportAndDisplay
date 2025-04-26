@@ -23,7 +23,7 @@ public class CachedAsyncEnumerable<T> : IAsyncEnumerable<T>
 
         while (_cache.Count <= index)
         {
-            if (await _sourceEnumerator.MoveNextAsync())
+            if (await _sourceEnumerator.MoveNextAsync(cancellationToken))
             {
                 _cache.Add(_sourceEnumerator.Current);
             }
