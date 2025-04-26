@@ -14,9 +14,11 @@ This solution demonstrates an Aspire-powered inventory display system with a Bla
 
 1. Clone this repository
 2. Navigate to the solution directory
-3. Run the application using:
+3. Run the application using either:
 
-`dotnet run --project AppHost.AppHost/AppHost.AppHost.csproj`
+- `AppHost.AppHost` as startup project (the `launchSettings.json` should already be configured)
+- `dotnet run --project AppHost.AppHost/AppHost.AppHost.csproj` (CLI)
+
 
 4. The Aspire dashboard will automatically open in your default browser
 
